@@ -17,7 +17,7 @@ use std::result;
 
 use crate::bitmap::{Bitmap, BS};
 use crate::guest_memory::FileOffset;
-use crate::mmap::{check_file_offset, NewBitmap};
+use crate::mmap::NewBitmap;
 use crate::volatile_memory::{self, VolatileMemory, VolatileSlice};
 
 /// Error conditions that may arise when creating a new `MmapRegion` object.
@@ -137,7 +137,6 @@ impl<B: Bitmap> MmapRegionBuilder<B> {
         }
 
         let (fd, offset) = if let Some(ref f_off) = self.file_offset {
-            check_file_offset(f_off, self.size)?;
             (f_off.file().as_raw_fd(), f_off.start())
         } else {
             (-1, 0)

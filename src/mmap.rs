@@ -86,18 +86,9 @@ pub fn check_file_offset(
     let start = file_offset.start();
 
     if let Some(end) = start.checked_add(size as u64) {
-        let filesize = match file
+        let filesize = file
             .seek(SeekFrom::End(0))
-            .map_err(MmapRegionError::SeekEnd)
-        {
-            Ok(size) => size,
-            Err(_) => {
-                // In cases where the termination point of the file is non-seekable (e.g. certain block or character devices like /dev/mem), 
-                // it may be prudent to disregard the error at this juncture. This is because subsequent memory mapping (mmap) operations 
-                // will inevitably encounter failure if the file size is insufficient or if the specified address is invalid.
-                start + size as u64
-            }
-        };
+            .map_err(MmapRegionError::SeekEnd)?;
         file.rewind().map_err(MmapRegionError::SeekStart)?;
         if filesize < end {
             return Err(MmapRegionError::MappingPastEof);
